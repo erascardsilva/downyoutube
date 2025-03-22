@@ -34,7 +34,7 @@ function createWindow() {
       webSecurity: true,
       enableRemoteModule: false
     },
-    frame: false,
+    frame: true,
     icon: path.join(__dirname, "assets", "icon.png"),
     backgroundColor: '#2e2c29'
   });

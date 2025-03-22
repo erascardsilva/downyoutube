@@ -54,7 +54,3 @@ window.electronAPI.on('download-error', (error) => {
   document.getElementById('speed').textContent = '';
 });
 
-// Fechar janela
-document.getElementById('close-btn').addEventListener('click', () => {
-  window.electronAPI.send('close-window');
-});
