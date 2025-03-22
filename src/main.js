@@ -1,10 +1,27 @@
 // Electron   -  Erasmo Cardoso
 // Download videos
 
-const { app, BrowserWindow, ipcMain, Menu, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const path = require("path");
-const { exec } = require("child_process");
+const fs = require("fs");
+const ytdl = require('@distube/ytdl-core');
+const https = require('https');
 
+// Verificar/Criar diretório /tmp com permissões corretas
+try {
+  fs.accessSync('/tmp', fs.constants.W_OK | fs.constants.X_OK);
+} catch (err) {
+  fs.mkdirSync('/tmp', { recursive: true });
+  fs.chmodSync('/tmp', 0o1777);
+}
+
+// Configurações de linha de comando
+app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('--disable-software-rasterizer');
+app.commandLine.appendSwitch('--disable-dev-shm-usage');
+
+
+// Gerenciamento de Janela
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -12,75 +29,126 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
-      enableRemoteModule: false,
+      sandbox: true,
       nodeIntegration: false,
+      webSecurity: true,
+      enableRemoteModule: false
     },
     frame: false,
-    icon: path.join(__dirname, "icon.png"),
+    icon: path.join(__dirname, "assets", "icon.png"),
+    backgroundColor: '#2e2c29'
   });
 
-  // Remove o menu padrão
+  // Carregar interface
+  mainWindow.loadFile(path.join(__dirname, "index.html"))
+    .catch(err => {
+      console.error("Erro ao carregar index.html:", err);
+      app.quit();
+    });
+
   Menu.setApplicationMenu(null);
 
-  // Carrega o index.html da pasta src
-  mainWindow.loadFile(path.join(__dirname, "index.html"));
-
-  // Verifica se o yt-dlp está instalado
-  checkYtDlpInstallation(mainWindow);
-}
-
-// verificar se o yt-dlp está instalado
-function checkYtDlpInstallation(mainWindow) {
-  exec("yt-dlp --version", (error, stdout, stderr) => {
-    if (error) {
-      dialog.showMessageBox(mainWindow, {
-        type: "error",
-        title: "Erro",
-        message: "O yt-dlp não está instalado no sistema.",
-        detail:
-          "Por favor, reinstale o aplicativo ou instale o yt-dlp manualmente.",
-        buttons: ["OK"],
-      });
-    } else {
-      console.log("yt-dlp está instalado:", stdout.trim());
-    }
+  // Otimizações
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.show();
   });
+
+  return mainWindow;
 }
 
-app.whenReady().then(createWindow);
+
+// Ciclo de Vida do Aplicativo
+app.whenReady().then(() => {
+  const mainWindow = createWindow();
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  if (process.platform !== "darwin") app.quit();
 });
 
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
 
-// Função para baixar o vídeo
-ipcMain.on("start-download", (event, { url, name, quality }) => {
-  console.log("Recebido no backend:", { url, name, quality });
-  const command = `yt-dlp -o "${name}.%(ext)s" -f "${quality}" ${url}`;
-
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Erro ao baixar vídeo:", stderr);
-      event.reply("download-error", "Erro ao baixar vídeo: " + stderr);
-      return;
+// IPC Handlers (Comunicação com o Renderer)
+ipcMain.on("start-download", async (event, { url, name, quality }) => {
+  try {
+    if (!ytdl.validateURL(url)) {
+      return event.reply('download-error', 'URL inválida');
     }
-    console.log("Vídeo baixado:", stdout);
-    event.reply("download-complete", "Download acabou...!");
-  });
+
+    const info = await ytdl.getInfo(url, {
+      requestOptions: {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        },
+        client: new https.Agent({ rejectUnauthorized: false })
+      }
+    });
+
+    const availability = info.player_response?.playabilityStatus;
+    if (!availability || availability.status !== 'OK') {
+      return event.reply('download-error', availability?.reason || 'Vídeo indisponível');
+    }
+
+    const format = ytdl.chooseFormat(info.formats, {
+      quality: quality || 'highest',
+      filter: format => 
+        format.hasVideo && 
+        format.hasAudio && 
+        (format.container === 'mp4' || format.container === 'webm')
+    });
+
+    if (!format) {
+      return event.reply('download-error', 'Formato não suportado');
+    }
+
+    const safeName = name.replace(/[<>:"/\\|?*]/g, '').substring(0, 128);
+    const output = path.join(
+      app.getPath('downloads'),
+      `${safeName}.${format.container}`
+    );
+
+    const download = ytdl(url, {
+      format,
+      highWaterMark: 1024 * 1024 * 32
+    });
+
+    // Progresso do download
+    let startTime = Date.now();
+    let downloadedBytes = 0;
+    
+    download.on('progress', (chunkLength, downloaded) => {
+      downloadedBytes += chunkLength;
+      const elapsed = (Date.now() - startTime) / 1000;
+      const speed = (downloadedBytes / 1024 / 1024 / elapsed).toFixed(2);
+      const percent = ((downloaded / info.videoDetails.lengthSeconds) * 100).toFixed(2);
+      
+      event.reply('download-progress', {
+        percent: parseFloat(percent),
+        speed: parseFloat(speed)
+      });
+    });
+
+    download.pipe(fs.createWriteStream(output));
+
+    download.on('end', () => {
+      event.reply('download-complete', { 
+        path: output, 
+        size: fs.statSync(output).size 
+      });
+    });
+
+    download.on('error', (err) => {
+      event.reply('download-error', err.message);
+    });
+
+  } catch (err) {
+    event.reply('download-error', err.message);
+  }
 });
 
-// Fechar a janela quando o evento 'close-window' for recebido
 ipcMain.on("close-window", () => {
-  const mainWindow = BrowserWindow.getFocusedWindow();
-  if (mainWindow) {
-    mainWindow.close();
-  }
+  app.quit();
 });
