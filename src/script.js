@@ -11,7 +11,7 @@ document.getElementById('downloadForm').addEventListener('submit', function (eve
     console.log('Enviando dados para o backend:', { url, name, quality });
     window.electronAPI.send('start-download', { url, name, quality });
 
-    alert('Download iniciado! Verifique o console para mais detalhes.');
+    alert('Download iniciado! agurde finalizar.');
 });
 
 // aguardando para receber mensagens do processo principal
