@@ -1,0 +1,32 @@
+# Ignora a pasta node_modules (dependências do Node.js)
+node_modules/
+
+# Ignora a pasta dist (pacotes gerados pelo Electron Builder)
+dist/
+
+# Ignora arquivos de log
+*.log
+
+# Ignora arquivos de ambiente (como .env)
+.env
+.env.local
+.env.development
+.env.production
+
+# Ignora arquivos de configuração do IDE
+.vscode/
+.idea/
+
+# Ignora arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignora arquivos de cache do npm
+.npm
+.npmrc
+
+# Ignora arquivos de cache do Electron
+electron-cache/
+
+# Ignora arquivos de depuração
+debug.log
