@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=DownYoutube
+Comment=Download de vídeos do YouTube
+Exec=/opt/DownYoutube/downyoutube
+Icon=downyoutube
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupWMClass=downyoutube
