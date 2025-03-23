@@ -27,7 +27,7 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
@@ -35,13 +35,13 @@ function createWindow() {
       enableRemoteModule: false
     },
     frame: true,
-    icon: path.join(__dirname, "assets", "icon.png"),
+    icon: path.join(__dirname, "..", "renderer", "assets", "icon.png"),
     backgroundColor: '#2e2c29'
   });
 
   // Carregar interface
-  mainWindow.loadFile(path.join(__dirname, "index.html"))
-    .catch(err => {
+  mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"))
+  .catch(err => {
       console.error("Erro ao carregar index.html:", err);
       app.quit();
     });

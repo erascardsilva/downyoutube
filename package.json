@@ -2,7 +2,7 @@
   "name": "downyoutube",
   "version": "1.0.0",
   "description": "YouTube Downloader",
-  "main": "src/main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "start": "electron . --no-sandbox --enable-logging",
     "build": "electron-builder",
@@ -15,39 +15,67 @@
     "productName": "DownYoutube",
     "files": [
       "src/**/*",
-      "main.js",
-      "preload.js",
-      "assets/**/*"
+      "package.json",
+      "node_modules/**/*"
     ],
+    "directories": {
+      "buildResources": "src/renderer/assets",
+      "output": "dist"
+    },
+    "asar": true,
     "linux": {
-      "target": [
-        "deb",
-        "AppImage"
-      ],
+      "target": ["deb", "AppImage"],
       "category": "Utility",
-      "icon": "./src/assets/down.png"
+     "icon": "src/renderer/assets/icons/256x256/downyoutube.png",
+      "desktop": {
+        "StartupWMClass": "downyoutube",
+        "MimeType": "x-scheme-handler/downyoutube",
+        "Icon": "downyoutube"
+      }
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libgconf-2-4"
+      ]
     },
     "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ],
-      "icon": "./src/assets/icon.ico"
+      "target": ["nsis", "portable"],
+      "icon": "src/renderer/assets/icon.ico"
     },
     "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "src/assets/icon.icns"
+      "target": ["dmg", "zip"],
+      "icon": "src/renderer/assets/icon.icns"
     },
     "extraResources": [
       {
-        "from": "scripts/install-yt-dlp.sh",
-        "to": "scripts/install-yt-dlp.sh",
-        "filter": [
-          "**/*"
-        ]
+        "from": "scripts",
+        "to": "scripts",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "src/renderer/assets/downyoutube.desktop",
+        "to": "usr/share/applications",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "src/renderer/assets/icons/32x32/downyoutube.png",
+        "to": "icons/hicolor/32x32/apps"
+      },
+      {
+        "from": "src/renderer/assets/icons/64x64/downyoutube.png",
+        "to": "icons/hicolor/64x64/apps"
+      },
+      {
+        "from": "src/renderer/assets/icons/128x128/downyoutube.png",
+        "to": "icons/hicolor/128x128/apps"
+      },
+      {
+        "from": "src/renderer/assets/icons/256x256/downyoutube.png",
+        "to": "icons/hicolor/256x256/apps"
       }
     ]
   },
@@ -55,8 +83,7 @@
   "homepage": "https://electrocode.com.br",
   "dependencies": {
     "@distube/ytdl-core": "^4.16.5",
-    "undici": "^6.21.2",
-    "ytdl-core": "^4.11.5"
+    "undici": "^6.21.2"
   },
   "devDependencies": {
     "electron": "^25.9.8",
