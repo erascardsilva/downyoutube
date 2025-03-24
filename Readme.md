@@ -2,6 +2,9 @@
 
 DownYouTube é um aplicativo desktop desenvolvido em Electron que permite baixar vídeos do YouTube de forma rápida e fácil. Com uma interface simples e intuitiva, você pode escolher a qualidade do vídeo e salvá-lo diretamente no seu computador.
 
+<img width = "1000px" src="https://github.com/user-attachments/assets/defeb61b-562c-4624-af3e-108227d73d7c>
+
+
 ---
 
 ## Funcionalidades
