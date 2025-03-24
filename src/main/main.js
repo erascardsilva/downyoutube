@@ -24,7 +24,7 @@ app.commandLine.appendSwitch('--disable-dev-shm-usage');
 // Gerenciamento de Janela
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
+    width: 850,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
