@@ -26,20 +26,14 @@
     "linux": {
       "target": ["deb", "AppImage"],
       "category": "Utility",
-     "icon": "src/renderer/assets/icons/256x256/downyoutube.png",
-      "desktop": {
-        "StartupWMClass": "downyoutube",
-        "MimeType": "x-scheme-handler/downyoutube",
-        "Icon": "downyoutube"
-      }
+      "icon": "src/renderer/assets/icons/256x256/downyoutube.png"
     },
     "deb": {
       "depends": [
         "libgtk-3-0",
         "libnotify4",
         "libnss3",
-        "libxss1",
-        "libgconf-2-4"
+        "libxss1"
       ]
     },
     "win": {
@@ -58,8 +52,7 @@
       },
       {
         "from": "src/renderer/assets/downyoutube.desktop",
-        "to": "usr/share/applications",
-        "filter": ["**/*"]
+        "to": "usr/share/applications/downyoutube.desktop"
       },
       {
         "from": "src/renderer/assets/icons/32x32/downyoutube.png",
@@ -82,11 +75,11 @@
   "author": "Erasmo Cardoso <erascardsilva@gmail.com>",
   "homepage": "https://electrocode.com.br",
   "dependencies": {
-    "@distube/ytdl-core": "^4.16.5",
-    "undici": "^6.21.2"
+    "@distube/ytdl-core": "^4.16.12",
+    "undici": "^7.15.0"
   },
   "devDependencies": {
-    "electron": "^25.9.8",
-    "electron-builder": "^24.13.3"
+    "electron": "^37.4.0",
+    "electron-builder": "^26.0.12"
   }
 }

@@ -13,22 +13,17 @@ Download videos -->
 <body>
  
 
-    <div class="container mt-5">
-        
-        <h1 class="text-center mb-4">Download de videos</h1>
-          <div class="card p-4">
+    <div class="main-container">
+        <div class="card p-4">
             <div class="text-center mb-4">
-                <img src="./assets/down.png  " height="10%" width="10%" alt="ElectroCode" class="ml-auto">
+                <img src="./assets/down.png" alt="DownYoutube Logo" class="app-logo">
+                <h1 class="mt-3">DownYoutube</h1>
             </div>
+            
             <form id="downloadForm">
-                <div class="mb-3" style="display: flex; align-items: center;">
-                   
-                    <div style="flex-grow: 1; ">
-                        
-                        <label for="urlInput" class="form-label">URL do Vídeo</label>
-                        <input type="text" class="form-control" id="urlInput" placeholder="Insira a URL do vídeo" required>
-                    </div>
-                    
+                <div class="mb-3">
+                    <label for="urlInput" class="form-label">URL do Vídeo</label>
+                    <input type="text" class="form-control" id="urlInput" placeholder="Insira a URL do vídeo" required>
                 </div>
                 <div class="mb-3">
                     <label for="fileNameInput" class="form-label">Nome do Arquivo</label>
@@ -37,22 +32,18 @@ Download videos -->
                 <div class="mb-3">
                     <label for="qualitySelect" class="form-label">Qualidade do Vídeo</label>
                     <select class="form-select" id="qualitySelect" required>
-                        <option value="highest">Melhor qualidade</option>
-                        <option value="lowest">Menor qualidade</option>
-                        <option value="136">720p (MP4)</option>
-                        <option value="137">1080p (MP4)</option>
-                        <option value="22">HD (720p-1080p)</option>
-                        <option value="18">360p (MP4)</option>
-                      </select>
+                        <option value="highest">Melhor qualidade (Vídeo + Áudio)</option>
+                        <option value="lowest">Menor qualidade (Vídeo + Áudio)</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Baixar</button>
+                <button type="submit" class="btn btn-primary w-100" id="downloadButton">Baixar</button>
             </form>
 
-            <!-- Elementos de progresso adicionados -->
             <div class="progress-container mt-4">
                 <div class="progress-bar" id="progress"></div>
             </div>
             <div id="speed" class="text-center mt-2"></div>
+            <div id="statusMessage" class="text-center mt-3"></div>
         </div>
     </div>
 
